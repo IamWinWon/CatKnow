@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">CatKnowledge</string>
+    <string name="push_me">Push me</string>
+    <string name="cat">Some cat</string>
+
+    <string name="responseMalformedJson">We have got some error, please, try later.</string>
+    <string name="requestTimeOutError">Bad connection</string>
+    <string name="networkError">Network error. Please check connection!</string>
+    <string name="unknownError">Nevedomaiya hnaia</string>
+</resources>
