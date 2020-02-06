@@ -10,8 +10,8 @@ import com.google.gson.annotations.SerializedName;
 @Entity(tableName = "cats")
 public class CatEntity {
 
-    @PrimaryKey
     @NonNull
+    @PrimaryKey
     @SerializedName("_id")
     @Expose
     private String id;
@@ -20,13 +20,10 @@ public class CatEntity {
     @Expose
     private String text;
 
-    @SerializedName("deleted")
+    @SerializedName("createdAt")
     @Expose
-    private boolean deleted;
+    private String createdAt;
 
-    @SerializedName("updatedAt")
-    @Expose
-    private String updatedAt;
 
     public String getId() {
         return id;
@@ -36,6 +33,7 @@ public class CatEntity {
         this.id = id;
     }
 
+
     public String getText() {
         return text;
     }
@@ -44,19 +42,12 @@ public class CatEntity {
         this.text = text;
     }
 
-    public boolean isDeleted() {
-        return deleted;
+    public String getCreatedAt() {
+        return createdAt;
     }
 
-    public void setDeleted(boolean deleted) {
-        this.deleted = deleted;
+    public void setCreatedAt(String createdAt) {
+        this.createdAt = createdAt;
     }
 
-    public String getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public void setUpdatedAt(String updatedAt) {
-        this.updatedAt = updatedAt;
-    }
 }

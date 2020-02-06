@@ -28,7 +28,7 @@ public class CatsViewModel extends ViewModel {
         return catsRepository.loadCats();
     }
 
-    public void deleteCat(CatEntity catEntity) {
-        catsRepository.deleteCat(catEntity);
+    public void deleteCat(String catId) {
+        catsRepository.deleteCatById(catId);
     }
 }

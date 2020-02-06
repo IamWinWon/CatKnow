@@ -23,4 +23,7 @@ public interface CatDao {
 
     @Delete
     void deleteCat(CatEntity catEntity);
+
+    @Query("DELETE FROM cats WHERE id = :catId")
+    void deleteByCatId(String catId);
 }

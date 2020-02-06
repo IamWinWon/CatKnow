@@ -12,4 +12,6 @@ public interface CatsRepository {
     LiveData<Resource<List<CatEntity>>> loadCats();
 
     void deleteCat(CatEntity catEntity);
+
+    void deleteCatById(String catId);
 }

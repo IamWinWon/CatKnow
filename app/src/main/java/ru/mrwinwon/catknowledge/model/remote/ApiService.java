@@ -9,8 +9,8 @@ public interface ApiService {
     @GET("/facts/random?animal_type=cat&amount=2")
     Call<CatsResponse> loadRandomCatInfo();
 
-//    @GET("/facts/random?animal_type=cat&amount=1")
-//    Single<CatsResponse> loadCatInfo();
+    @GET("/facts/random?animal_type=cat&amount=1")
+    Single<CatsResponse> loadCatInfo();
 
     // TODO: 03.02.2020 picture
 }

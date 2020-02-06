@@ -7,6 +7,7 @@ import java.util.List;
 
 import javax.inject.Inject;
 
+import io.reactivex.Single;
 import retrofit2.Call;
 import ru.mrwinwon.catknowledge.model.local.CatDao;
 import ru.mrwinwon.catknowledge.model.local.CatEntity;
@@ -47,12 +48,23 @@ public class CatsRepositoryImpl implements CatsRepository {
             protected Call<CatsResponse> createCall() {
                 return apiService.loadRandomCatInfo();
             }
+
+            @NonNull
+            @Override
+            protected Single<CatsResponse> createSingle() {
+                return apiService.loadCatInfo();
+            }
         }.getAsLiveData();
     }
 
     @Override
     public void deleteCat(CatEntity catEntity) {
         catDao.deleteCat(catEntity);
+    }
+
+    @Override
+    public void deleteCatById(String catId) {
+        catDao.deleteByCatId(catId);
     }
 
 }

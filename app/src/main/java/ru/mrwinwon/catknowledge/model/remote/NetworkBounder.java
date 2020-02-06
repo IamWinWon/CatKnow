@@ -15,12 +15,15 @@ import java.io.IOException;
 import java.net.SocketTimeoutException;
 
 import io.reactivex.Single;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.observers.DisposableSingleObserver;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.HttpException;
 import retrofit2.Response;
 import ru.mrwinwon.catknowledge.R;
 import ru.mrwinwon.catknowledge.app.CatsApp;
+import ru.mrwinwon.catknowledge.model.local.CatEntity;
 
 public abstract class NetworkBounder<T, V> {
     private final MediatorLiveData<Resource<T>> resourceMediatorLiveData = new MediatorLiveData<>();
@@ -65,6 +68,22 @@ public abstract class NetworkBounder<T, V> {
                 resourceMediatorLiveData.addSource(dbSource, newData -> resourceMediatorLiveData.setValue(Resource.error(getCustomErrorMessage(t), newData)));
             }
         });
+
+//        Disposable disposable = Single.create()
+//                .subscribeWith(new DisposableSingleObserver<CatEntity>(){
+//                    @Override
+//                    public void onSuccess(CatEntity catEntity) {
+//                        resourceMediatorLiveData.removeSource(dbSource);
+//                        saveResultAndReInit(response.body());
+//                    }
+//
+//                    @Override
+//                    public void onError(Throwable e) {
+//                        resourceMediatorLiveData.removeSource(dbSource);
+//                        resourceMediatorLiveData.addSource(dbSource, newData -> resourceMediatorLiveData.setValue(Resource.error(getCustomErrorMessage(e), newData)));
+//                    }
+//                });
+//        addSubscription(disposable);
     }
 
     private String getCustomErrorMessage(Throwable error) {
@@ -120,9 +139,9 @@ public abstract class NetworkBounder<T, V> {
     @MainThread
     protected abstract Call<V> createCall();
 
-//    @NonNull
-//    @MainThread
-//    protected abstract Single<V> createSingle();
+    @NonNull
+    @MainThread
+    protected abstract Single<V> createSingle();
 
     public final LiveData<Resource<T>> getAsLiveData() {
         return resourceMediatorLiveData;

@@ -1,30 +1,35 @@
 package ru.mrwinwon.catknowledge.ui.main.recycler;
 
 import android.view.LayoutInflater;
+import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
+import androidx.databinding.BindingAdapter;
+import androidx.databinding.DataBindingUtil;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.bumptech.glide.Glide;
 
 import java.util.List;
 
 import ru.mrwinwon.catknowledge.databinding.CatItemBinding;
-import ru.mrwinwon.catknowledge.model.local.CatEntity;
-import ru.mrwinwon.catknowledge.ui.main.base.BaseAdapter;
 import ru.mrwinwon.catknowledge.viewModel.CatsViewModel;
 
 //public class CatsListAdapter extends BaseAdapter<CatsListAdapter.CatsViewHolder, CatEntity> {
-public class CatsListAdapter extends RecyclerView.Adapter<CatsListAdapter.CatsViewHolder> implements BindableAdapter<List<CatEntity>> {
+public class CatsListAdapter extends RecyclerView.Adapter<CatsListAdapter.CatsViewHolder> implements BindableAdapter {
 
-    private List<CatEntity> cats;
+    private List<Cat> cats;
     private CatsViewModel catsViewModel;
+//    CatItemBinding binding;
 
     public CatsListAdapter(CatsViewModel catsViewModel) {
         this.catsViewModel = catsViewModel;
     }
 
     @Override
-    public void setData(List<CatEntity> data) {
+    public void setData(List<Cat> data) {
         this.cats = data;
         notifyDataSetChanged();
     }
@@ -32,14 +37,16 @@ public class CatsListAdapter extends RecyclerView.Adapter<CatsListAdapter.CatsVi
     @NonNull
     @Override
     public CatsViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        return CatsViewHolder.create(LayoutInflater.from(parent.getContext()), parent);
+        LayoutInflater inflater = LayoutInflater.from(parent.getContext());
+        CatItemBinding binding = CatItemBinding.inflate(inflater, parent, false);
+        return new CatsViewHolder(binding.getRoot());
     }
 
     @Override
     public void onBindViewHolder(@NonNull CatsViewHolder holder, final int position) {
         holder.onBind(cats.get(position));
         holder.itemView.setOnLongClickListener(v -> {
-            catsViewModel.deleteCat(cats.get(position));
+            catsViewModel.deleteCat(cats.get(position).getId());
             return true;
         });
     }
@@ -53,19 +60,22 @@ public class CatsListAdapter extends RecyclerView.Adapter<CatsListAdapter.CatsVi
 
         private final CatItemBinding catItemBinding;
 
-        private static CatsViewHolder create(LayoutInflater inflater, ViewGroup viewGroup) {
-            CatItemBinding catItemBinding = CatItemBinding.inflate(inflater, viewGroup, false);
-            return new CatsViewHolder(catItemBinding);
+        public CatsViewHolder(@NonNull View itemView) {
+            super(itemView);
+            catItemBinding = DataBindingUtil.bind(itemView);
         }
 
-        private CatsViewHolder(final CatItemBinding catItemBinding) {
-            super(catItemBinding.getRoot());
-            this.catItemBinding = catItemBinding;
+        void onBind(Cat cat) {
+            catItemBinding.setCat(cat);
         }
+    }
 
-        private void onBind(CatEntity catEntity) {
-            catItemBinding.setCat(catEntity);
-            catItemBinding.executePendingBindings();
-        }
+
+    @SuppressWarnings("unchecked")
+    @BindingAdapter("bind:imageUrl")
+    public static void loadImage(ImageView imageView, String v) {
+        Glide.with(imageView.getContext())
+                .load(v)
+                .into(imageView);
     }
 }

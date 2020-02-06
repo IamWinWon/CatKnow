@@ -7,4 +7,7 @@
     <string name="requestTimeOutError">Bad connection</string>
     <string name="networkError">Network error. Please check connection!</string>
     <string name="unknownError">Nevedomaiya hnaia</string>
+    <string name="push_button_for_facts">Findout fact!</string>
+    <string name="cats_fact">Cats fact</string>
+    <string name="cats_date">02/02/2020</string>
 </resources>
