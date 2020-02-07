@@ -9,20 +9,22 @@ import androidx.room.Query;
 
 import java.util.List;
 
+import io.reactivex.Single;
+
 @Dao
 public interface CatDao {
 
-    @Query("SELECT * FROM cats")
+    @Query("SELECT * FROM cats ORDER BY createdAt DESC")
     LiveData<List<CatEntity>> loadCats();
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    void saveCats(List<CatEntity> catEntities);
+    @Query("SELECT * FROM cats WHERE avatar = :avatar")
+    Single<CatEntity> loadEmptyCat(String avatar);
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     void saveCat(CatEntity catEntity);
 
-    @Delete
-    void deleteCat(CatEntity catEntity);
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    void saveAvatar(CatAvatar catAvatar);
 
     @Query("DELETE FROM cats WHERE id = :catId")
     void deleteByCatId(String catId);

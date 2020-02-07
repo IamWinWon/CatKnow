@@ -11,25 +11,26 @@ import androidx.databinding.DataBindingUtil;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 
 import java.util.List;
 
 import ru.mrwinwon.catknowledge.databinding.CatItemBinding;
+import ru.mrwinwon.catknowledge.model.local.CatEntity;
+import ru.mrwinwon.catknowledge.ui.main.base.BaseAdapter;
 import ru.mrwinwon.catknowledge.viewModel.CatsViewModel;
 
-//public class CatsListAdapter extends BaseAdapter<CatsListAdapter.CatsViewHolder, CatEntity> {
-public class CatsListAdapter extends RecyclerView.Adapter<CatsListAdapter.CatsViewHolder> implements BindableAdapter {
+public class CatsListAdapter extends BaseAdapter<CatsListAdapter.CatsViewHolder, CatEntity> {
 
-    private List<Cat> cats;
+    private List<CatEntity> cats;
     private CatsViewModel catsViewModel;
-//    CatItemBinding binding;
 
     public CatsListAdapter(CatsViewModel catsViewModel) {
         this.catsViewModel = catsViewModel;
     }
 
     @Override
-    public void setData(List<Cat> data) {
+    public void setData(List<CatEntity> data) {
         this.cats = data;
         notifyDataSetChanged();
     }
@@ -65,7 +66,7 @@ public class CatsListAdapter extends RecyclerView.Adapter<CatsListAdapter.CatsVi
             catItemBinding = DataBindingUtil.bind(itemView);
         }
 
-        void onBind(Cat cat) {
+        void onBind(CatEntity cat) {
             catItemBinding.setCat(cat);
         }
     }
@@ -73,9 +74,9 @@ public class CatsListAdapter extends RecyclerView.Adapter<CatsListAdapter.CatsVi
 
     @SuppressWarnings("unchecked")
     @BindingAdapter("bind:imageUrl")
-    public static void loadImage(ImageView imageView, String v) {
+    public static void loadImage(ImageView imageView, String imageUrl) {
         Glide.with(imageView.getContext())
-                .load(v)
+                .load(imageUrl).apply(new RequestOptions().circleCrop())
                 .into(imageView);
     }
 }

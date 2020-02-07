@@ -1,6 +1,7 @@
 package ru.mrwinwon.catknowledge.model.local;
 
 import androidx.annotation.NonNull;
+import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
@@ -23,6 +24,10 @@ public class CatEntity {
     @SerializedName("createdAt")
     @Expose
     private String createdAt;
+
+    @SerializedName("avatar")
+    @ColumnInfo(defaultValue = "empty")
+    private String avatar;
 
 
     public String getId() {
@@ -50,4 +55,20 @@ public class CatEntity {
         this.createdAt = createdAt;
     }
 
+    public String getAvatar() {
+        return avatar;
+    }
+
+    public void setAvatar(String avatar) {
+        this.avatar = avatar;
+    }
+
+    @Override
+    public String toString() {
+        return "CatEntity{" +
+                "id='" + id + '\'' +
+                ", text='" + text + '\'' +
+                ", createdAt='" + createdAt + '\'' +
+                '}';
+    }
 }

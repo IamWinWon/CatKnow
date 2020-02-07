@@ -1,6 +1,7 @@
 package ru.mrwinwon.catknowledge.ui.main;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -53,15 +54,18 @@ public class CatsFragment extends BaseFragment<CatsViewModel, MainFragmentBindin
         super.onActivityCreated(savedInstanceState);
         viewModel.getCats()
                 .observe(getViewLifecycleOwner(), listResource -> {
+                    Log.d("CatsFragment", "start");
                     if (listResource != null && (listResource.status == ERROR || listResource.status == SUCCESS)) {
                         dataBinding.pbFetchingData.setVisibility(View.GONE);
                     }
 
                     dataBinding.setResource(listResource);
 
-                    if(null != dataBinding.rvCats.getAdapter() && dataBinding.rvCats.getAdapter().getItemCount() > 0){
+                    if (null != dataBinding.rvCats.getAdapter() && dataBinding.rvCats.getAdapter().getItemCount() > 0) {
                         dataBinding.tvError.setVisibility(View.GONE);
                     }
+                    Log.d("CatsFragment", "end");
+
                 });
     }
 

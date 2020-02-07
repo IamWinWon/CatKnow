@@ -22,8 +22,6 @@ public class CatsApp extends Application implements HasAndroidInjector {
         sInstance = app;
     }
 
-//    @Inject
-//    DispatchingAndroidInjector<Activity> activityDispatchingInjector;
 
     @Inject
     DispatchingAndroidInjector<Object> fragmentDispatchingAndroidInjector;
@@ -41,11 +39,6 @@ public class CatsApp extends Application implements HasAndroidInjector {
                 .build()
                 .inject(this);
     }
-
-//    @Override
-//    public AndroidInjector<Activity> activityInjector() {
-//        return activityDispatchingInjector;
-//    }
 
 
     @Override

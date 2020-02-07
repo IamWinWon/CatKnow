@@ -24,6 +24,7 @@ public abstract class BaseFragment<V extends ViewModel, D extends ViewDataBindin
 
     protected V viewModel;
     protected D dataBinding;
+
     protected abstract Class<V> getViewModel();
 
     @Inject

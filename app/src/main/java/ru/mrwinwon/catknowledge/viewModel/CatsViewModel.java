@@ -24,8 +24,8 @@ public class CatsViewModel extends ViewModel {
     }
 
     public LiveData<Resource<List<CatEntity>>> getCats() {
-//        return resourceLiveData;
-        return catsRepository.loadCats();
+        catsRepository.loadCats();
+        return resourceLiveData;
     }
 
     public void deleteCat(String catId) {

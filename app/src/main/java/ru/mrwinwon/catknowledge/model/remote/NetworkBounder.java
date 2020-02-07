@@ -1,7 +1,6 @@
 package ru.mrwinwon.catknowledge.model.remote;
 
 import android.annotation.SuppressLint;
-import android.os.AsyncTask;
 
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
@@ -15,75 +14,73 @@ import java.io.IOException;
 import java.net.SocketTimeoutException;
 
 import io.reactivex.Single;
-import io.reactivex.disposables.Disposable;
+import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.observers.DisposableSingleObserver;
-import retrofit2.Call;
-import retrofit2.Callback;
+import io.reactivex.schedulers.Schedulers;
 import retrofit2.HttpException;
-import retrofit2.Response;
 import ru.mrwinwon.catknowledge.R;
 import ru.mrwinwon.catknowledge.app.CatsApp;
+import ru.mrwinwon.catknowledge.model.local.CatAvatar;
 import ru.mrwinwon.catknowledge.model.local.CatEntity;
 
 public abstract class NetworkBounder<T, V> {
     private final MediatorLiveData<Resource<T>> resourceMediatorLiveData = new MediatorLiveData<>();
 
+
     @MainThread
     protected NetworkBounder() {
         resourceMediatorLiveData.setValue(Resource.loading(null));
 
-        LiveData<T> dbSource = loadFromDb();
 
-        resourceMediatorLiveData.addSource(dbSource, data -> {
-            resourceMediatorLiveData.removeSource(dbSource);
-            if (shouldFetch()) {
-                fetchFromNetwork(dbSource);
-            } else {
-                resourceMediatorLiveData.addSource(dbSource, newData -> {
-                    if (null != newData)
-                        resourceMediatorLiveData.setValue(Resource.success(newData));
-                });
-            }
-        });
+        LiveData<T> dbSource = loadFromDb();
+        fetchFromNetwork(dbSource);
+
     }
 
-    /**
-     * This method fetches the data from remoted service and save it to local db
-     *
-     * @param dbSource - Database source
-     */
+    @SuppressLint("CheckResult")
     private void fetchFromNetwork(final LiveData<T> dbSource) {
         resourceMediatorLiveData.addSource(dbSource, newData -> resourceMediatorLiveData.setValue(Resource.loading(newData)));
 
-        createCall().enqueue(new Callback<V>() {
-            @Override
-            public void onResponse(@NonNull Call<V> call, @NonNull Response<V> response) {
-                resourceMediatorLiveData.removeSource(dbSource);
-                saveResultAndReInit(response.body());
-            }
+        createCallRequests()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeWith(new DisposableSingleObserver<CatEntity>() {
+                    @Override
+                    public void onSuccess(CatEntity catEntity) {
+                        if (catEntity != null) {
+                            saveCallResult(catEntity);
+                            resourceMediatorLiveData.removeSource(dbSource);
+                            resourceMediatorLiveData.addSource(loadFromDb(), newData -> {
+                                if (newData != null)
+                                    resourceMediatorLiveData.setValue(Resource.success(newData));
+                            });
+                        }
 
-            @Override
-            public void onFailure(@NonNull Call<V> call, @NonNull Throwable t) {
-                resourceMediatorLiveData.removeSource(dbSource);
-                resourceMediatorLiveData.addSource(dbSource, newData -> resourceMediatorLiveData.setValue(Resource.error(getCustomErrorMessage(t), newData)));
-            }
-        });
+                    }
 
-//        Disposable disposable = Single.create()
-//                .subscribeWith(new DisposableSingleObserver<CatEntity>(){
-//                    @Override
-//                    public void onSuccess(CatEntity catEntity) {
-//                        resourceMediatorLiveData.removeSource(dbSource);
-//                        saveResultAndReInit(response.body());
-//                    }
-//
-//                    @Override
-//                    public void onError(Throwable e) {
-//                        resourceMediatorLiveData.removeSource(dbSource);
-//                        resourceMediatorLiveData.addSource(dbSource, newData -> resourceMediatorLiveData.setValue(Resource.error(getCustomErrorMessage(e), newData)));
-//                    }
-//                });
-//        addSubscription(disposable);
+                    public void onError(Throwable e) {
+                        e.printStackTrace();
+                        resourceMediatorLiveData.removeSource(dbSource);
+                        resourceMediatorLiveData.addSource(dbSource, newData -> resourceMediatorLiveData.setValue(Resource.error(getCustomErrorMessage(e), newData)));
+                    }
+                });
+
+
+        createCallAvatar()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeWith(new DisposableSingleObserver<CatAvatar>() {
+                    @Override
+                    public void onSuccess(CatAvatar catAvatar) {
+                        saveCallAvatarResult(catAvatar);
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        e.printStackTrace();
+                    }
+                });
+
     }
 
     private String getCustomErrorMessage(Throwable error) {
@@ -102,34 +99,12 @@ public abstract class NetworkBounder<T, V> {
 
     }
 
-    @SuppressLint("StaticFieldLeak")
-    @MainThread
-    private void saveResultAndReInit(V response) {
-        new AsyncTask<Void, Void, Void>() {
-
-            @Override
-            protected Void doInBackground(Void... voids) {
-                saveCallResult(response);
-                return null;
-            }
-
-            @Override
-            protected void onPostExecute(Void aVoid) {
-                resourceMediatorLiveData.addSource(loadFromDb(), newData -> {
-                    if (newData != null)
-                        resourceMediatorLiveData.setValue(Resource.success(newData));
-                });
-            }
-        }.execute();
-    }
 
     @WorkerThread
-    protected abstract void saveCallResult(V item);
+    protected abstract void saveCallResult(CatEntity item);
 
-    @MainThread
-    private boolean shouldFetch() {
-        return true;
-    }
+    @WorkerThread
+    protected abstract void saveCallAvatarResult(CatAvatar item);
 
     @NonNull
     @MainThread
@@ -137,11 +112,11 @@ public abstract class NetworkBounder<T, V> {
 
     @NonNull
     @MainThread
-    protected abstract Call<V> createCall();
+    protected abstract Single<CatEntity> createCallRequests();
 
     @NonNull
     @MainThread
-    protected abstract Single<V> createSingle();
+    protected abstract Single<CatAvatar> createCallAvatar();
 
     public final LiveData<Resource<T>> getAsLiveData() {
         return resourceMediatorLiveData;
